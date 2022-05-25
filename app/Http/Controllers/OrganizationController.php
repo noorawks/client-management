@@ -20,6 +20,9 @@ class OrganizationController extends Controller
         $search = $request->search ?: null;
 
         $organizations = Organization::with('persons:id,organization_id,name')
+                                    ->when(!Auth::user()->isAdmin, function ($query) {
+                                        return $query->where('user_id', Auth::id());
+                                    })
                                     ->when($search, function ($query) use ($search) {
                                         return $query->where('name', 'LIKE', '%' . $search . '%')
                                                 ->orWhere(function ($q) use ($search) {
